@@ -1,0 +1,3 @@
+dsn: "postgres://postgres:pass@proxyhost:5432/gophkeeper?sslmode=disable"
+server-addr: ":3200"
+authkey: "superpass"
