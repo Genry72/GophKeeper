@@ -47,7 +47,7 @@ create table user_secrets
         constraint user_secrets_secret_types_id_fk
             references secret_types,
     name           text                    not null,
-    data           integer,
+    data           bytea,
     created_at     timestamp default now() not null,
     updated_at     timestamp default now() not null,
     deleted_at     timestamp
