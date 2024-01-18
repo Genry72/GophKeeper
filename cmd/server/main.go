@@ -44,7 +44,7 @@ func main() {
 
 	uc := usecase.NewUsecase(repo, jwtService, zapLogger)
 
-	server := grpcserver.NewGrpcServer(uc, conf.ServerHostPort, zapLogger)
+	server := grpcserver.NewGrpcServer(uc, conf.ServerHostPort, jwtService, zapLogger)
 
 	if err := server.Run(); err != nil {
 		zapLogger.Fatal("server.Run", zap.Error(err))

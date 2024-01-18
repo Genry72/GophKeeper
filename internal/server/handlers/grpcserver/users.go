@@ -2,6 +2,7 @@ package grpcserver
 
 import (
 	"context"
+	"github.com/Genry72/GophKeeper/internal/server/models"
 	pb "github.com/Genry72/GophKeeper/proto"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/status"
@@ -10,6 +11,10 @@ import (
 // Register Регистрация пользователя
 func (h *GrpcServer) Register(ctx context.Context, in *pb.RegisterUserMsg) (*pb.TokenResponse, error) {
 	var response pb.TokenResponse
+
+	if in.Username == "" || in.Password == "" {
+		return nil, models.ErrEmptyLogPass
+	}
 
 	if _, err := h.useCases.Users.RegisterUser(ctx, in.Username, in.Password); err != nil {
 		h.log.Error("h.useCases.Users.RegisterUser", zap.Error(err))

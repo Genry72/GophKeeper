@@ -3,8 +3,10 @@ package grpcserver
 import (
 	"errors"
 	"fmt"
+	"github.com/Genry72/GophKeeper/internal/server/handlers/grpcserver/interceptor"
 	"github.com/Genry72/GophKeeper/internal/server/models"
 	"github.com/Genry72/GophKeeper/internal/server/usecase"
+	"github.com/Genry72/GophKeeper/pkg/jwttoken"
 	"github.com/Genry72/GophKeeper/proto"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -22,12 +24,18 @@ type GrpcServer struct {
 	proto.UnimplementedUsersServer
 }
 
-func NewGrpcServer(useCases *usecase.Usecase, hostPort string, log *zap.Logger) *GrpcServer {
-	// todo подключить обработчики
-
+func NewGrpcServer(useCases *usecase.Usecase,
+	hostPort string, jwtService *jwttoken.Service, log *zap.Logger) *GrpcServer {
 	// создаём gRPC-сервер, подключаем обработчики
-	//s := grpc.NewServer(grpc.ChainUnaryInterceptor(h.interceptors...))
-	server := grpc.NewServer(grpc.ChainUnaryInterceptor())
+	interceptors := make([]grpc.UnaryServerInterceptor, 0)
+
+	// Логирование
+	interceptors = append(interceptors, interceptor.Logging(log))
+
+	// Проверка заголовка с токеном
+	interceptors = append(interceptors, interceptor.CheckToken(jwtService, log))
+
+	server := grpc.NewServer(grpc.ChainUnaryInterceptor(interceptors...))
 
 	// Регистрация серверного отражения
 	reflection.Register(server)

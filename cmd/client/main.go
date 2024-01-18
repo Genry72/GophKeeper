@@ -1,7 +1,15 @@
 package main
 
 import (
-	"fmt"
+	"context"
+	"github.com/Genry72/GophKeeper/internal/client/usecase/grpcclient"
+	"github.com/Genry72/GophKeeper/internal/client/usecase/tuiclient"
+	"github.com/Genry72/GophKeeper/pkg/logger"
+	"go.uber.org/zap"
+)
+
+const (
+	grpcServerAddress = ":3200"
 )
 
 var (
@@ -10,9 +18,29 @@ var (
 )
 
 func main() {
-	fmt.Println(buildVersion)
-	fmt.Println(buildDate)
-	fmt.Println("----")
+	// todo нужен ли?
+	zapLogger := logger.NewZapLogger("info")
+
+	defer func() {
+		_ = zapLogger.Sync()
+	}()
+
+	zapLogger.Info("build version:\t" + buildVersion)
+	zapLogger.Info("build date:\t" + buildDate)
+
+	ctxMain, cancelMain := context.WithCancel(context.Background())
+
+	grpcClient, err := grpcclient.NewClient(grpcServerAddress, zapLogger)
+	if err != nil {
+		zapLogger.Fatal("grpcclient.NewClient", zap.Error(err))
+	}
+
+	client := tuiclient.NewApp(grpcClient, zapLogger)
+
+	if err := client.Run(ctxMain); err != nil {
+		zapLogger.Fatal("client.Run", zap.Error(err))
+	}
+	cancelMain()
 	//grpcconn, err := grpc.Dial(hostPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	//if err != nil {
 	//	log.Fatal(err)

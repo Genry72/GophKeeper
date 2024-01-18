@@ -5,10 +5,7 @@ import (
 	"time"
 )
 
-var (
-	ErrUserAlreadyExist = fmt.Errorf("логин занят")
-	ErrUserNotFound     = fmt.Errorf("пользователь с указанным логиными и паролем не найден")
-)
+type CtxUserID struct{}
 
 // Users Пользователи системы
 type Users struct {
@@ -17,3 +14,9 @@ type Users struct {
 	PasswordHash string    `db:"password_hash"`
 	CreatedAt    time.Time `db:"created_at"`
 }
+
+var (
+	ErrUserAlreadyExist = fmt.Errorf("логин занят")
+	ErrUserNotFound     = fmt.Errorf("пользователь с указанным логиными и паролем не найден")
+	ErrEmptyLogPass     = fmt.Errorf("логин и пароль не должны быть пустыми")
+)
