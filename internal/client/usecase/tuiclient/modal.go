@@ -1,13 +1,13 @@
 package tuiclient
 
 func (a *App) showModal(message string, switchPage string) {
-	a.modal.ClearButtons()
-	a.modal.
+	a.tvievApp.modal.ClearButtons()
+	a.tvievApp.modal.
 		SetText(message).
 		AddButtons([]string{"Понятно"}).
 		SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-			a.pages.SwitchToPage(switchPage)
+			a.tvievApp.pages.SwitchToPage(switchPage)
 		})
 
-	a.pages.SwitchToPage(pageModal)
+	a.tvievApp.pages.SwitchToPage(pageModal)
 }

@@ -28,22 +28,29 @@ const (
 )
 
 type App struct {
-	tvievApp  *tview.Application
-	form      *tview.Form
-	pages     *tview.Pages
-	modal     *tview.Modal
+	tvievApp  tvievApp
 	userInfo  models.UserInfo
 	netClient usecase.INetClient
-	token     string
+	token     *string
 	log       *zap.Logger
 }
 
+type tvievApp struct {
+	app   *tview.Application
+	form  *tview.Form
+	pages *tview.Pages
+	modal *tview.Modal
+}
+
 func NewApp(netclient usecase.INetClient, log *zap.Logger) *App {
+	tvievApp := tvievApp{
+		app:   tview.NewApplication(),
+		form:  tview.NewForm(),
+		pages: tview.NewPages(),
+		modal: tview.NewModal(),
+	}
 	return &App{
-		tvievApp:  tview.NewApplication(),
-		form:      tview.NewForm(),
-		pages:     tview.NewPages(),
-		modal:     tview.NewModal(),
+		tvievApp:  tvievApp,
 		netClient: netclient,
 		log:       log,
 	}
@@ -52,12 +59,12 @@ func NewApp(netclient usecase.INetClient, log *zap.Logger) *App {
 func (a *App) Run(ctx context.Context) error {
 	firstForm := a.formLogon(ctx)
 
-	a.pages.AddPage(pageLogon, firstForm, true, true)
-	a.pages.AddPage(pageRegister, a.form, true, false)
-	a.pages.AddPage(pageAuth, a.form, true, false)
-	a.pages.AddPage(pageModal, a.modal, true, false)
+	a.tvievApp.pages.AddPage(pageLogon, firstForm, true, true)
+	a.tvievApp.pages.AddPage(pageRegister, a.tvievApp.form, true, false)
+	a.tvievApp.pages.AddPage(pageAuth, a.tvievApp.form, true, false)
+	a.tvievApp.pages.AddPage(pageModal, a.tvievApp.modal, true, false)
 
-	if err := a.tvievApp.SetRoot(a.pages, true).EnableMouse(true).Run(); err != nil {
+	if err := a.tvievApp.app.SetRoot(a.tvievApp.pages, true).EnableMouse(true).Run(); err != nil {
 		return fmt.Errorf("a.tvievApp.SetRoot: %w", err)
 	}
 	return nil
@@ -65,7 +72,7 @@ func (a *App) Run(ctx context.Context) error {
 
 func (a *App) Stop() error {
 	// todo синхронизация с сервером
-	a.tvievApp.Stop()
+	a.tvievApp.app.Stop()
 	return nil
 }
 

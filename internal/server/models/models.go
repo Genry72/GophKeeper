@@ -7,6 +7,8 @@ import (
 
 type CtxUserID struct{}
 
+const HeaderAuthorization = "Authorization"
+
 // Users Пользователи системы
 type Users struct {
 	Id           int64     `db:"id"`

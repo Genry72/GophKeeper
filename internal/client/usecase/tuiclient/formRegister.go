@@ -7,18 +7,18 @@ import (
 
 // formRegister форма регистрации пользователя
 func (a *App) formRegister(ctx context.Context) {
-	a.form.Clear(true)
+	a.tvievApp.form.Clear(true)
 	user := a.userInfo
 
-	a.form.AddInputField("Имя пользователя", "", 20, nil, func(username string) {
+	a.tvievApp.form.AddInputField("Имя пользователя", "", 20, nil, func(username string) {
 		user.Username = username
 	})
 
-	a.form.AddPasswordField("Пароль", "", 20, '*', func(pass string) {
+	a.tvievApp.form.AddPasswordField("Пароль", "", 20, '*', func(pass string) {
 		user.Password = pass
 	})
 
-	a.form.AddButton("Регистрация", func() {
+	a.tvievApp.form.AddButton("Регистрация", func() {
 		if len(user.Username) < 4 || len(user.Password) < 4 {
 			a.showModal(models.ErrLenLogPass.Error(), pageRegister)
 			return
@@ -31,11 +31,11 @@ func (a *App) formRegister(ctx context.Context) {
 		}
 
 		a.userInfo = user
-		a.token = token
-		a.pages.SwitchToPage(pageLogon) // todo нужна корректная страницак
+		a.token = &token
+		a.tvievApp.pages.SwitchToPage(pageLogon) // todo нужна корректная страницак
 	})
 
-	a.form.AddButton("Вернуться", func() {
-		a.pages.SwitchToPage(pageLogon)
+	a.tvievApp.form.AddButton("Вернуться", func() {
+		a.tvievApp.pages.SwitchToPage(pageLogon)
 	})
 }

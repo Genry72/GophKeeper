@@ -27,7 +27,7 @@ func CheckToken(jwtService *jwttoken.Service, log *zap.Logger) grpc.UnaryServerI
 		var token string
 
 		if md, ok := metadata.FromIncomingContext(ctx); ok {
-			values := md.Get("Authorization")
+			values := md.Get(models.HeaderAuthorization)
 			if len(values) > 0 {
 				tokenFromHeader := values[0]
 				tokenStrs := strings.Split(tokenFromHeader, "Bearer ")

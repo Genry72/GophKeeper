@@ -8,8 +8,11 @@ type UserInfo struct {
 	Password string
 }
 
+// Ошибки, возвращаемые клиентом
 var (
 	// ErrUserInfoEmpty нет информации о пользователе, запустившем приложение
 	ErrUserInfoEmpty = errors.New("user info iz empty")
 	ErrLenLogPass    = errors.New("длина логина и пароля должны быть не менее 5-ти символов")
 )
+
+const HeaderAuthorization = "Authorization"
