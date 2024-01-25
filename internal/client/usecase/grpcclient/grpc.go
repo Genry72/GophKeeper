@@ -2,36 +2,38 @@ package grpcclient
 
 import (
 	"fmt"
-	"github.com/Genry72/GophKeeper/proto"
+	"github.com/Genry72/GophKeeper/internal/client/models"
+	"github.com/Genry72/GophKeeper/internal/client/usecase/grpcclient/interceptor"
+	"github.com/Genry72/GophKeeper/internal/client/usecase/grpcclient/secrets"
+	"github.com/Genry72/GophKeeper/internal/client/usecase/grpcclient/users"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
 type Client struct {
-	grpcconn    *grpc.ClientConn
-	usersClient proto.UsersClient
-	log         *zap.Logger
+	grpcconn      *grpc.ClientConn
+	UsersClient   *users.Users
+	SecretsClient *secrets.Secrets
+	log           *zap.Logger
 }
 
 func NewClient(grpcHostPort string, log *zap.Logger) (*Client, error) {
-
-	//grpcconn, err := grpc.Dial(grpcHostPort, grpc.WithTransportCredentials(insecure.NewCredentials()),
-	//	grpc.WithChainUnaryInterceptor(interceptors...))
+	var interceptors []grpc.UnaryClientInterceptor
+	interceptors = append(interceptors, interceptor.SetToken(&models.Token))
 
 	grpcconn, err := grpc.Dial(grpcHostPort, grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithChainUnaryInterceptor())
+		grpc.WithChainUnaryInterceptor(interceptors...))
 
 	if err != nil {
-		return nil, fmt.Errorf("grpc.Dial: %w", zap.Error(err))
+		return nil, fmt.Errorf("grpc.Dial: %w", err)
 	}
 
-	usersClient := proto.NewUsersClient(grpcconn)
-
 	return &Client{
-		grpcconn:    grpcconn,
-		usersClient: usersClient,
-		log:         log,
+		grpcconn:      grpcconn,
+		UsersClient:   users.NewUser(grpcconn, log),
+		SecretsClient: secrets.NewSecrets(grpcconn, log),
+		log:           log,
 	}, nil
 
 }

@@ -22,6 +22,7 @@ type GrpcServer struct {
 	hostPort   string
 	listener   net.Listener // Сетевое соединение
 	proto.UnimplementedUsersServer
+	proto.UnimplementedSecretServer
 }
 
 func NewGrpcServer(useCases *usecase.Usecase,
@@ -49,33 +50,34 @@ func NewGrpcServer(useCases *usecase.Usecase,
 
 	// регистрируем сервис
 	proto.RegisterUsersServer(server, grpStruct)
+	proto.RegisterSecretServer(server, grpStruct)
 
 	return grpStruct
 }
 
-func (s *GrpcServer) Run() error {
-	listen, err := net.Listen("tcp", s.hostPort)
+func (h *GrpcServer) Run() error {
+	listen, err := net.Listen("tcp", h.hostPort)
 	if err != nil {
 		return fmt.Errorf("net.Listen: %w", err)
 	}
 
-	s.listener = listen
+	h.listener = listen
 
 	// получаем запрос gRPC
-	if err := s.grpcServer.Serve(listen); err != nil {
-		return fmt.Errorf("s.grpcServer.Serve: %w", err)
+	if err := h.grpcServer.Serve(listen); err != nil {
+		return fmt.Errorf("h.grpcServer.Serve: %w", err)
 	}
 
 	return nil
 }
 
-func (s *GrpcServer) Stop() error {
-	s.grpcServer.GracefulStop()
-	if err := s.listener.Close(); err != nil {
-		return fmt.Errorf("s.listener.Close: %w", err)
+func (h *GrpcServer) Stop() error {
+	h.grpcServer.GracefulStop()
+	if err := h.listener.Close(); err != nil {
+		return fmt.Errorf("h.listener.Close: %w", err)
 	}
 
-	s.log.Info("server success stopped")
+	h.log.Info("server success stopped")
 	return nil
 }
 

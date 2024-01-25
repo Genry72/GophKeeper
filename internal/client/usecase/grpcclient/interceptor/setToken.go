@@ -13,7 +13,7 @@ func SetToken(token *string) grpc.UnaryClientInterceptor {
 	return func(ctx context.Context, method string, req interface{},
 		reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker,
 		opts ...grpc.CallOption) error {
-		if token != nil && *token != "" {
+		if token != nil {
 			ctx = metadata.AppendToOutgoingContext(ctx, models.HeaderAuthorization, fmt.Sprintf("Bearer %s", *token))
 		}
 

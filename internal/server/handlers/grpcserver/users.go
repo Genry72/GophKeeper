@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Register Регистрация пользователя
+// Register Регистрация пользователя.
 func (h *GrpcServer) Register(ctx context.Context, in *pb.RegisterUserMsg) (*pb.TokenResponse, error) {
 	var response pb.TokenResponse
 
@@ -32,7 +32,7 @@ func (h *GrpcServer) Register(ctx context.Context, in *pb.RegisterUserMsg) (*pb.
 	return &response, nil
 }
 
-// Auth Аутентификация пользователя
+// Auth Аутентификация пользователя.
 func (h *GrpcServer) Auth(ctx context.Context, in *pb.AuthUserMsg) (*pb.TokenResponse, error) {
 	var response pb.TokenResponse
 

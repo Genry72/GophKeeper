@@ -16,7 +16,7 @@ import (
 //
 // Пример использования:
 // logger := NewZapLogger("info")
-func NewZapLogger(level string) *zap.Logger {
+func NewZapLogger(level string, toFile bool) *zap.Logger {
 
 	cfg := zap.NewProductionEncoderConfig()
 	cfg.TimeKey = "time"
@@ -28,9 +28,20 @@ func NewZapLogger(level string) *zap.Logger {
 		log.Fatal(err)
 	}
 
+	out := os.Stdout
+
+	if toFile {
+		file, err := os.OpenFile("log.txt", os.O_APPEND|os.O_RDWR|os.O_CREATE, 0666)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		out = file
+	}
+
 	core := zapcore.NewCore(
 		zapcore.NewJSONEncoder(cfg),
-		zapcore.AddSync(os.Stdout),
+		zapcore.AddSync(out),
 		lvl,
 	)
 

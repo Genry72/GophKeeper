@@ -3,6 +3,7 @@ package postgres
 import (
 	"errors"
 	"fmt"
+	"github.com/Genry72/GophKeeper/internal/server/repositories/postgres/secrets"
 	"github.com/Genry72/GophKeeper/internal/server/repositories/postgres/users"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -13,7 +14,8 @@ import (
 )
 
 type PGStorage struct {
-	Users *users.UsersRepo
+	Users   *users.UsersRepo
+	Secrets *secrets.SecretsRepo
 }
 
 func NewPGStorage(dsn string, log *zap.Logger) (*PGStorage, error) {
@@ -36,7 +38,8 @@ func NewPGStorage(dsn string, log *zap.Logger) (*PGStorage, error) {
 	}
 
 	return &PGStorage{
-		Users: users.NewUsersRepo(db, log),
+		Users:   users.NewUsersRepo(db, log),
+		Secrets: secrets.NewSecretsRepo(db, log),
 	}, nil
 }
 

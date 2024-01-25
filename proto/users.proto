@@ -21,7 +21,6 @@ message AuthUserMsg{
 }
 
 
-
 service Users {
     rpc Register(RegisterUserMsg) returns (TokenResponse);
     rpc Auth(AuthUserMsg) returns (TokenResponse);

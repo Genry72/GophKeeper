@@ -3,7 +3,6 @@ package tuiclient
 import (
 	"context"
 	"fmt"
-	"github.com/Genry72/GophKeeper/internal/client/models"
 	"github.com/Genry72/GophKeeper/internal/client/usecase"
 	"github.com/rivo/tview"
 	"go.uber.org/zap"
@@ -15,23 +14,22 @@ const (
 	textLogon    = "Вход"
 )
 
-// Имена страниц
+// Имена страниц.
 const (
-	// pageLogon Первая страница
+	// pageLogon Первая страница.
 	pageLogon = "logon"
-	// pageRegister Регистрация пользователя
-	pageRegister = "register"
-	// pageAuth Вход пользователя
-	pageAuth = "auth"
-	// Модалка
+	// pageAny Обновляемая страница.
+	pageAny = "toform"
+	// Обновляемый список.
+	pageAnyList = "toList"
+	// Модалка.
 	pageModal = "modal"
 )
 
 type App struct {
 	tvievApp  tvievApp
-	userInfo  models.UserInfo
-	netClient usecase.INetClient
-	token     *string
+	ucUsers   usecase.Iusers
+	ucSecrets usecase.ISecrets
 	log       *zap.Logger
 }
 
@@ -40,43 +38,39 @@ type tvievApp struct {
 	form  *tview.Form
 	pages *tview.Pages
 	modal *tview.Modal
+	list  *tview.List
 }
 
-func NewApp(netclient usecase.INetClient, log *zap.Logger) *App {
+func NewApp(ucUser usecase.Iusers, ucSecrets usecase.ISecrets, log *zap.Logger) *App {
 	tvievApp := tvievApp{
 		app:   tview.NewApplication(),
 		form:  tview.NewForm(),
 		pages: tview.NewPages(),
 		modal: tview.NewModal(),
+		list:  tview.NewList().ShowSecondaryText(false),
 	}
 	return &App{
 		tvievApp:  tvievApp,
-		netClient: netclient,
+		ucUsers:   ucUser,
+		ucSecrets: ucSecrets,
 		log:       log,
 	}
 }
 
 func (a *App) Run(ctx context.Context) error {
-	firstForm := a.formLogon(ctx)
-
-	a.tvievApp.pages.AddPage(pageLogon, firstForm, true, true)
-	a.tvievApp.pages.AddPage(pageRegister, a.tvievApp.form, true, false)
-	a.tvievApp.pages.AddPage(pageAuth, a.tvievApp.form, true, false)
+	a.tvievApp.pages.AddPage(pageLogon, a.listLogon(ctx), true, true)
+	a.tvievApp.pages.AddPage(pageAny, a.tvievApp.form, true, false)
 	a.tvievApp.pages.AddPage(pageModal, a.tvievApp.modal, true, false)
+	a.tvievApp.pages.AddPage(pageAnyList, a.tvievApp.list, true, false)
 
 	if err := a.tvievApp.app.SetRoot(a.tvievApp.pages, true).EnableMouse(true).Run(); err != nil {
 		return fmt.Errorf("a.tvievApp.SetRoot: %w", err)
 	}
+
 	return nil
 }
 
 func (a *App) Stop() error {
-	// todo синхронизация с сервером
 	a.tvievApp.app.Stop()
 	return nil
-}
-
-// GetUserInfo Возвращает логин и пароль пользователя
-func (a *App) GetUserInfo() (string, string) {
-	return a.userInfo.Username, a.userInfo.Password
 }

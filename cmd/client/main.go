@@ -2,8 +2,12 @@ package main
 
 import (
 	"context"
+	memstorage "github.com/Genry72/GophKeeper/internal/client/repositories/memstorage/secrets"
 	"github.com/Genry72/GophKeeper/internal/client/usecase/grpcclient"
+	"github.com/Genry72/GophKeeper/internal/client/usecase/secrets"
+	"github.com/Genry72/GophKeeper/internal/client/usecase/sync"
 	"github.com/Genry72/GophKeeper/internal/client/usecase/tuiclient"
+	"github.com/Genry72/GophKeeper/internal/client/usecase/users"
 	"github.com/Genry72/GophKeeper/pkg/logger"
 	"go.uber.org/zap"
 )
@@ -18,8 +22,8 @@ var (
 )
 
 func main() {
-	// todo нужен ли?
-	zapLogger := logger.NewZapLogger("info")
+
+	zapLogger := logger.NewZapLogger("info", true)
 
 	defer func() {
 		_ = zapLogger.Sync()
@@ -35,31 +39,21 @@ func main() {
 		zapLogger.Fatal("grpcclient.NewClient", zap.Error(err))
 	}
 
-	client := tuiclient.NewApp(grpcClient, zapLogger)
+	localRepo := memstorage.NewSecrets()
+
+	// синхронизация с сервером
+	syncService := sync.NewSync(localRepo, grpcClient.SecretsClient, zapLogger)
+
+	ucUser := users.NewUserUc(grpcClient.UsersClient, localRepo, syncService, zapLogger)
+
+	ucSecrets := secrets.NewSecretUc(grpcClient.SecretsClient, localRepo, syncService, zapLogger)
+
+	client := tuiclient.NewApp(ucUser, ucSecrets, zapLogger)
 
 	if err := client.Run(ctxMain); err != nil {
 		zapLogger.Fatal("client.Run", zap.Error(err))
 	}
+
 	cancelMain()
-	//grpcconn, err := grpc.Dial(hostPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//
-	//client := proto.NewServerClient(grpcconn)
-	//for {
-	//	msg, err := client.Hello(context.Background(), &proto.HelloMsg{
-	//		Msg: "Сообщение от клиента",
-	//	})
-	//	if err != nil {
-	//		status, _ := status2.FromError(err)
-	//		fmt.Printf("%+v\n", status.Message())
-	//		time.Sleep(5 * time.Second)
-	//		continue
-	//	}
-	//
-	//	fmt.Println("Получено сообщение от сервера " + msg.String())
-	//	time.Sleep(5 * time.Second)
-	//}
 
 }

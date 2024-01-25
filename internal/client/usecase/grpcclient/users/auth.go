@@ -1,4 +1,4 @@
-package grpcclient
+package users
 
 import (
 	"context"
@@ -7,13 +7,13 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (c *Client) Register(ctx context.Context, username, password string) (string, error) {
-	registerMsg := &proto.RegisterUserMsg{
+func (c *Users) Auth(ctx context.Context, username, password string) (string, error) {
+	authMsg := &proto.AuthUserMsg{
 		Username: username,
 		Password: password,
 	}
 
-	token, err := c.usersClient.Register(ctx, registerMsg)
+	token, err := c.usersClient.Auth(ctx, authMsg)
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			return "", fmt.Errorf(e.Message())

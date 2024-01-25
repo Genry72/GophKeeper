@@ -18,8 +18,17 @@ type IUsers interface {
 	FindByID(ctx context.Context, id int64) (*models.Users, bool, error)
 }
 
+type ISecrets interface {
+	GetSecretTypes(ctx context.Context) ([]models.SecretType, error)
+	AddSecret(ctx context.Context, userID int64, secretTypeID int64,
+		secretName string, secretContent []byte) (models.Secret, error)
+	GetSecretsBySecretTypeID(ctx context.Context,
+		userID int64, typeID int64) ([]models.Secret, error)
+}
+
 type Repo struct {
-	Users IUsers
+	Users   IUsers
+	Secrets ISecrets
 }
 
 func NewPostgresRepo(dsn string, log *zap.Logger) (*Repo, error) {
@@ -27,7 +36,9 @@ func NewPostgresRepo(dsn string, log *zap.Logger) (*Repo, error) {
 	if err != nil {
 		return nil, fmt.Errorf("postgres.NewPGStorage: %w", err)
 	}
+
 	return &Repo{
-		Users: pgRepo.Users,
+		Users:   pgRepo.Users,
+		Secrets: pgRepo.Secrets,
 	}, nil
 }

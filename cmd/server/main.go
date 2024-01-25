@@ -21,7 +21,7 @@ var (
 //}
 
 func main() {
-	zapLogger := logger.NewZapLogger("info")
+	zapLogger := logger.NewZapLogger("info", false)
 
 	defer func() {
 		_ = zapLogger.Sync()
