@@ -12,6 +12,7 @@ import (
 	"github.com/Genry72/GophKeeper/pkg/helper"
 	"github.com/Genry72/GophKeeper/pkg/logger"
 	"go.uber.org/zap"
+	"time"
 )
 
 const (
@@ -22,6 +23,12 @@ var (
 	buildVersion string
 	buildDate    string
 )
+
+// todo
+// graceful shutdown
+// обновление токена
+// компиляция под разные ОС
+// тесты!!!
 
 func main() {
 
@@ -56,12 +63,27 @@ func main() {
 
 	ucSecrets := secrets.NewSecretUc(grpcClient.SecretsClient, localRepo, zapLogger)
 
-	client := tuiclient.NewApp(ucUser, ucSecrets, zapLogger)
+	guiClient := tuiclient.NewApp(ucUser, ucSecrets, zapLogger)
 
-	if err := client.Run(ctxMain); err != nil {
-		zapLogger.Fatal("client.Run", zap.Error(err))
+	if err := guiClient.Run(ctxMain); err != nil {
+		zapLogger.Fatal("guiClient.Run", zap.Error(err))
 	}
 
+	stopTimeout := 5 * time.Second
+	// Отменяем главный контекст
 	cancelMain()
 
+	// Останавливаем gui client
+	guiClient.Stop()
+
+	// Останавливаем синхронизацию с сервером
+	syncService.Stop(stopTimeout)
+
+	// Останавливаем обновление токена
+	ucUser.UpdateTokenStop(stopTimeout)
+
+	// Закрываем соединение grpc клиента
+	if err := grpcClient.Stop(); err != nil {
+		zapLogger.Error("grpcClient.Stop", zap.Error(err))
+	}
 }

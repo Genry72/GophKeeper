@@ -19,5 +19,8 @@ func (u *UserUc) Register(ctx context.Context, username, password string) error 
 		return fmt.Errorf("u.sync.StartSync: %w", err)
 	}
 
+	// Запуск обновления токена
+	u.updateTokenStart(ctx)
+
 	return nil
 }

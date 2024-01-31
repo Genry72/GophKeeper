@@ -39,3 +39,15 @@ func NewClient(grpcHostPort string, userInfo *models.UserInfo, log *zap.Logger) 
 	}, nil
 
 }
+
+func (c *Client) Stop() error {
+	c.log.Info("Stopping grpc client")
+
+	if err := c.grpcconn.Close(); err != nil {
+		return fmt.Errorf("c.grpcconn.Close: %w", err)
+	}
+
+	c.log.Info("Grpc client success stopped")
+
+	return nil
+}

@@ -29,6 +29,7 @@ func NewSecretUc(netClient usecase.InetClientSecrets,
 // CreateSecret Отправляет секрет на сервер, полученный секрет от сервера добавляет в локальное хранилище
 func (s *SecretUc) CreateSecret(ctx context.Context,
 	secretTypeID models.SecretTypeID, secretName models.SecretName, secretValue any) error {
+
 	var (
 		secretByte []byte
 		err        error

@@ -15,6 +15,8 @@ type Sync struct {
 	localRepo    repositories.IrepoSecretsSync
 	serverClient usecase.InetClientSecrets
 	log          *zap.Logger
+	doneChan     chan struct{}
+	running      bool
 }
 
 func NewSync(localRepo repositories.IrepoSecretsSync, serverClient usecase.InetClientSecrets, log *zap.Logger) *Sync {
@@ -22,11 +24,16 @@ func NewSync(localRepo repositories.IrepoSecretsSync, serverClient usecase.InetC
 		localRepo:    localRepo,
 		serverClient: serverClient,
 		log:          log,
+		doneChan:     make(chan struct{}),
 	}
 }
 
 func (s *Sync) StartSync(ctx context.Context) error {
 	s.log.Info("sync started")
+
+	if s.running {
+		return nil
+	}
 
 	// После получения токена прогружаем типы секретов
 	secretTypes, err := s.syncTypeSecrets(ctx)
@@ -51,19 +58,44 @@ func (s *Sync) StartSync(ctx context.Context) error {
 	t := time.NewTicker(time.Minute)
 
 	go func() {
+		s.running = true
 		for {
 			select {
 			case <-t.C:
 				periodicSync()
 			case <-ctx.Done():
 				t.Stop()
-				s.log.Info("sync stopped")
+				s.doneChan <- struct{}{}
+
+				close(s.doneChan)
+
 				return
 			}
 		}
 	}()
 
 	return nil
+}
+
+func (s *Sync) Stop(t time.Duration) {
+	s.log.Info("Stopping sync")
+
+	if !s.running {
+		s.log.Info("Sync not running")
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), t)
+
+	defer cancel()
+
+	select {
+	case <-ctx.Done():
+		s.log.Error("sync not stopped")
+	case <-s.doneChan:
+		s.running = false
+		s.log.Info("Sync success stopped")
+	}
 }
 
 func (s *Sync) syncTypeSecrets(ctx context.Context) ([]models.SecretType, error) {

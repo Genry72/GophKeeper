@@ -53,6 +53,7 @@ func NewApp(ucUser usecase.Iusers, ucSecrets usecase.ISecrets, log *zap.Logger) 
 		list:     tview.NewList().ShowSecondaryText(false),
 		treeView: tview.NewTreeView(),
 	}
+
 	return &App{
 		tvievApp:  tvievApp,
 		ucUsers:   ucUser,
@@ -75,7 +76,7 @@ func (a *App) Run(ctx context.Context) error {
 	return nil
 }
 
-func (a *App) Stop() error {
+func (a *App) Stop() {
 	a.tvievApp.app.Stop()
-	return nil
+	a.log.Info("Gui stopped")
 }
