@@ -32,8 +32,8 @@ func main() {
 		_ = zapLogger.Sync()
 	}()
 
-	zapLogger.Info("build version:\t" + buildVersion)
-	zapLogger.Info("build date:\t" + buildDate)
+	zapLogger.Info("build version: " + buildVersion)
+	zapLogger.Info("build date: " + buildDate)
 
 	ctxMain, cancelMain := context.WithCancel(context.Background())
 
@@ -59,7 +59,7 @@ func main() {
 
 	guiClient := tuiclient.NewApp(ucUser, ucSecrets, zapLogger)
 
-	if err := guiClient.Run(ctxMain); err != nil {
+	if err := guiClient.Run(ctxMain, buildVersion, buildDate); err != nil {
 		zapLogger.Fatal("guiClient.Run", zap.Error(err))
 	}
 

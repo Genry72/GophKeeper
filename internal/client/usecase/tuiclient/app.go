@@ -62,8 +62,8 @@ func NewApp(ucUser usecase.Iusers, ucSecrets usecase.ISecrets, log *zap.Logger) 
 	}
 }
 
-func (a *App) Run(ctx context.Context) error {
-	a.tvievApp.pages.AddPage(pageLogon, a.listLogon(ctx), true, true)
+func (a *App) Run(ctx context.Context, buildVersion, buildDate string) error {
+	a.tvievApp.pages.AddPage(pageLogon, a.listLogon(ctx, buildVersion, buildDate), true, true)
 	a.tvievApp.pages.AddPage(pageAny, a.tvievApp.form, true, false)
 	a.tvievApp.pages.AddPage(pageModal, a.tvievApp.modal, true, false)
 	a.tvievApp.pages.AddPage(pageAnyList, a.tvievApp.list, true, false)
