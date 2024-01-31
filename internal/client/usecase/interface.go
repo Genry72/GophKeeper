@@ -35,7 +35,7 @@ type ISecrets interface {
 	GetSecretTypes(ctx context.Context) ([]models.SecretType, error)
 	// CreateSecret Добавление нового секрета
 	CreateSecret(ctx context.Context,
-		secretTypeID models.SecretTypeID, secretName models.SecretName, secret any) error
+		secretTypeID models.SecretTypeID, secretName models.SecretName, secretValue any) error
 	// EditSecret Изменение секрета
 	EditSecret(ctx context.Context,
 		secretID models.SecretID, secretName models.SecretName, secretValue any) error

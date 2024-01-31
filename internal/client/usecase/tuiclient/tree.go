@@ -54,10 +54,9 @@ func (a *App) tree(ctx context.Context) {
 		}
 	}
 
-	// Add the current directory to the root node.
 	add(root, rootDir)
 
-	// If a directory was selected, open it.
+	// При выборе папки она открывается
 	tree.SetSelectedFunc(func(node *tview.TreeNode) {
 		reference := node.GetReference()
 		if reference == nil {
@@ -65,7 +64,7 @@ func (a *App) tree(ctx context.Context) {
 		}
 		children := node.GetChildren()
 		if len(children) == 0 {
-			// Load and show files in this directory.
+			// Открытие и закрытие папок
 			path := reference.(string)
 			add(node, path)
 		} else {

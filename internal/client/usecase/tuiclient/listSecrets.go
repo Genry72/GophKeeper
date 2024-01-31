@@ -47,6 +47,7 @@ func (a *App) listSecrets(ctx context.Context, secretTypeID models.SecretTypeID)
 		makeSecretFn = func() {
 			a.formAddBinary(ctx, "", nil)
 		}
+
 		for _, secret := range secrets {
 			s := secret.(models.SecretBinary)
 			a.tvievApp.list.AddItem(string(secret.(models.SecretBinary).Name), "", rune('!'), func() {
@@ -55,6 +56,17 @@ func (a *App) listSecrets(ctx context.Context, secretTypeID models.SecretTypeID)
 			})
 		}
 	case models.SecretTypeIDText:
+		makeSecretFn = func() {
+			a.formAddText(ctx, nil)
+		}
+
+		for _, secret := range secrets {
+			s := secret.(models.SecretText)
+			a.tvievApp.list.AddItem(string(secret.(models.SecretText).Name), "", rune('!'), func() {
+				a.formAddText(ctx, &s)
+				a.tvievApp.pages.SwitchToPage(pageAny)
+			})
+		}
 	default:
 		a.log.Fatal(models.ErrUnckowType.Error())
 

@@ -21,6 +21,22 @@ func (a *App) formAddBinary(ctx context.Context, filePath string, secret *models
 			a.tvievApp.form.AddInputField("Путь до файла", filePath, 20, nil, func(name string) {
 				filePath = name
 			})
+
+			a.tvievApp.form.AddButton("Сохранить", func() {
+				f, err := os.ReadFile(filePath)
+				if err != nil {
+					a.showModal(err.Error())
+					return
+				}
+				a.log.Info(string(f))
+				if err := a.ucSecrets.CreateSecret(ctx,
+					models.SecretTypeIDBinary, models.SecretName(secretName), models.SecretBinaryValue(f)); err != nil {
+					a.showModal(err.Error())
+					return
+				}
+				a.listSecrets(ctx, models.SecretTypeIDBinary)
+				a.tvievApp.pages.SwitchToPage(pageAnyList)
+			})
 		}
 
 		a.tvievApp.form.AddButton("Выбрать файл", func() {
@@ -28,21 +44,6 @@ func (a *App) formAddBinary(ctx context.Context, filePath string, secret *models
 			a.tvievApp.pages.SwitchToPage(pageTree)
 		})
 
-		a.tvievApp.form.AddButton("Сохранить", func() {
-			f, err := os.ReadFile(filePath)
-			if err != nil {
-				a.showModal(err.Error())
-				return
-			}
-			a.log.Info(string(f))
-			if err := a.ucSecrets.CreateSecret(ctx,
-				models.SecretTypeIDBinary, models.SecretName(secretName), models.SecretBinaryValue(f)); err != nil {
-				a.showModal(err.Error())
-				return
-			}
-			a.listSecrets(ctx, models.SecretTypeIDBinary)
-			a.tvievApp.pages.SwitchToPage(pageAnyList)
-		})
 	} else {
 		// Редактирование секрета
 		a.tvievApp.form.AddInputField("Путь для сохранения файла", "", 20, nil, func(name string) {
