@@ -34,6 +34,7 @@ type ISecrets interface {
 type Repo struct {
 	Users   IUsers
 	Secrets ISecrets
+	pgRepo  *postgres.PGStorage
 }
 
 func NewPostgresRepo(dsn string, log *zap.Logger) (*Repo, error) {
@@ -45,5 +46,10 @@ func NewPostgresRepo(dsn string, log *zap.Logger) (*Repo, error) {
 	return &Repo{
 		Users:   pgRepo.Users,
 		Secrets: pgRepo.Secrets,
+		pgRepo:  pgRepo,
 	}, nil
+}
+
+func (r *Repo) Stop() {
+	r.pgRepo.Stop()
 }

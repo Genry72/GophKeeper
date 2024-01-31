@@ -24,12 +24,6 @@ var (
 	buildDate    string
 )
 
-// todo
-// graceful shutdown
-// обновление токена
-// компиляция под разные ОС
-// тесты!!!
-
 func main() {
 
 	zapLogger := logger.NewZapLogger("info", true)

@@ -3,11 +3,11 @@ buildFlag = -ldflags="-X 'main.buildVersion=`git describe --tags --abbrev=0`' -X
 
 .PHONY: runServer
 runServer: build
-	./cmd/server/server
+	./cmd/server/mac_server
 
 .PHONY: runClient
 runClient: build
-	./cmd/client/client
+	./cmd/client/mac_client
 
 .PHONY: cover
 cover:
@@ -17,10 +17,14 @@ cover:
 
 .PHONY: build
 build:
-	go build $(buildFlag) -o ./cmd/server/ ./cmd/server/
-	chmod +x ./cmd/server
-	go build $(buildFlag) -o ./cmd/client/ ./cmd/client/
-	chmod +x ./cmd/client
+	GOOS=darwin GOARCH=arm64 go build $(buildFlag) -o ./cmd/server/mac_server ./cmd/server
+	GOOS=windows GOARCH=amd64 go build $(buildFlag) -o ./cmd/server/win_server.exe ./cmd/server
+	GOOS=linux GOARCH=amd64 go build $(buildFlag) -o ./cmd/server/linux_server ./cmd/server
+	chmod +x ./cmd/server/mac_server
+	GOOS=darwin GOARCH=arm64 go build $(buildFlag) -o ./cmd/client/mac_client ./cmd/client
+	GOOS=windows GOARCH=arm64 go build $(buildFlag) -o ./cmd/client/win_client.exe ./cmd/client
+	GOOS=linux GOARCH=amd64 go build $(buildFlag) -o ./cmd/client/linux_client ./cmd/client
+	chmod +x ./cmd/client/mac_client
 
 .PHONY: test
 test:

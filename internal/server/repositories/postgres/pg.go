@@ -16,6 +16,8 @@ import (
 type PGStorage struct {
 	Users   *users.UsersRepo
 	Secrets *secrets.SecretsRepo
+	pgconn  *sqlx.DB
+	log     *zap.Logger
 }
 
 func NewPGStorage(dsn string, log *zap.Logger) (*PGStorage, error) {
@@ -40,6 +42,8 @@ func NewPGStorage(dsn string, log *zap.Logger) (*PGStorage, error) {
 	return &PGStorage{
 		Users:   users.NewUsersRepo(db, log),
 		Secrets: secrets.NewSecretsRepo(db, log),
+		pgconn:  db,
+		log:     log,
 	}, nil
 }
 
@@ -58,4 +62,16 @@ func migration(dsn string) error {
 	}
 
 	return nil
+}
+
+// Stop Закрытие соединений с базой
+func (pg *PGStorage) Stop() {
+	pg.log.Info("Stopping db connections")
+
+	if err := pg.pgconn.Close(); err != nil {
+		pg.log.Error("Stop pg connection", zap.Error(err))
+		return
+	}
+
+	pg.log.Info("Db connections success stopped")
 }

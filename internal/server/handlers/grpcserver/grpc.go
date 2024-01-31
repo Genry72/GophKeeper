@@ -20,7 +20,6 @@ type GrpcServer struct {
 	grpcServer *grpc.Server
 	log        *zap.Logger
 	hostPort   string
-	listener   net.Listener // Сетевое соединение
 	proto.UnimplementedUsersServer
 	proto.UnimplementedSecretServer
 }
@@ -61,8 +60,6 @@ func (h *GrpcServer) Run() error {
 		return fmt.Errorf("net.Listen: %w", err)
 	}
 
-	h.listener = listen
-
 	// получаем запрос gRPC
 	if err := h.grpcServer.Serve(listen); err != nil {
 		return fmt.Errorf("h.grpcServer.Serve: %w", err)
@@ -72,12 +69,12 @@ func (h *GrpcServer) Run() error {
 }
 
 func (h *GrpcServer) Stop() error {
+	h.log.Info("Stopping server")
+
 	h.grpcServer.GracefulStop()
-	if err := h.listener.Close(); err != nil {
-		return fmt.Errorf("h.listener.Close: %w", err)
-	}
 
 	h.log.Info("server success stopped")
+
 	return nil
 }
 

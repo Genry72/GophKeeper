@@ -8,6 +8,9 @@ import (
 	"github.com/Genry72/GophKeeper/pkg/jwttoken"
 	"github.com/Genry72/GophKeeper/pkg/logger"
 	"go.uber.org/zap"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 )
 
@@ -46,30 +49,25 @@ func main() {
 
 	server := grpcserver.NewGrpcServer(uc, conf.ServerHostPort, jwtService, zapLogger)
 
-	if err := server.Run(); err != nil {
-		zapLogger.Fatal("server.Run", zap.Error(err))
+	go func() {
+		if err := server.Run(); err != nil {
+			zapLogger.Fatal("server.Run", zap.Error(err))
+		}
+	}()
+
+	// Graceful shutdown block
+	quit := make(chan os.Signal, 1)
+
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
+
+	<-quit
+
+	// Останавливаем сервер
+	if err := server.Stop(); err != nil {
+		zapLogger.Error("server.Stop", zap.Error(err))
 	}
 
-	//listen, err := net.Listen("tcp", hostPort)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//// создаём gRPC-сервер, подключаем обработчики
-	//s := grpc.NewServer()
-	//// Регистрация серверного отражения
-	//reflection.Register(s)
-	//d := Server{}
-	//pb.RegisterServerServer(s, &d)
-	//
-	//if err := s.Serve(listen); err != nil {
-	//	log.Fatal(err)
-	//}
-}
+	// Закрываем подключения к БД
+	repo.Stop()
 
-//func (s *Server) Hello(ctx context.Context, msg *pb.HelloMsg) (*pb.HelloMsg, error) {
-//	fmt.Println("Пришло на сервер " + msg.String())
-//	//return &pb.HelloMsg{
-//	//	Msg: "Ответ от сервера",
-//	//}, nil
-//	return nil, status.Errorf(codes.Aborted, "хрен тебе %s", "бугага")
-//}
+}
