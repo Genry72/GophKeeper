@@ -15,23 +15,59 @@ func (a *App) listSecrets(ctx context.Context, secretTypeID models.SecretTypeID)
 		return
 	}
 
-	for index, secret := range secrets {
-		switch s := secret.(type) {
-		case models.SecretLogPass:
-			a.tvievApp.list.AddItem(string(s.Name), "", rune(49+index), func() {
-				a.formAddLogPass(ctx)
+	var makeSecretFn func()
+
+	switch secretTypeID {
+	case models.SecretTypeIDLogpass:
+		makeSecretFn = func() {
+			a.formAddLogPass(ctx, nil)
+		}
+
+		for _, secret := range secrets {
+			s := secret.(models.SecretLogPass)
+			a.tvievApp.list.AddItem(string(secret.(models.SecretLogPass).Name), "", rune('!'), func() {
+				a.formAddLogPass(ctx, &s)
 				a.tvievApp.pages.SwitchToPage(pageAny)
 			})
-		case models.SecretBankCard:
-		case models.SecretBinary:
-		case models.SecretText:
-		default:
-			a.log.Fatal(models.ErrUnckowType.Error())
 		}
+
+	case models.SecretTypeIDBankCard:
+		makeSecretFn = func() {
+			a.formBankCard(ctx, nil)
+		}
+
+		for _, secret := range secrets {
+			s := secret.(models.SecretBankCard)
+			a.tvievApp.list.AddItem(string(secret.(models.SecretBankCard).Name), "", rune('!'), func() {
+				a.formBankCard(ctx, &s)
+				a.tvievApp.pages.SwitchToPage(pageAny)
+			})
+		}
+	case models.SecretTypeIDBinary:
+		makeSecretFn = func() {
+			a.formAddBinary(ctx, "", nil)
+		}
+		for _, secret := range secrets {
+			s := secret.(models.SecretBinary)
+			a.tvievApp.list.AddItem(string(secret.(models.SecretBinary).Name), "", rune('!'), func() {
+				a.formAddBinary(ctx, "", &s)
+				a.tvievApp.pages.SwitchToPage(pageAny)
+			})
+		}
+	case models.SecretTypeIDText:
+	default:
+		a.log.Fatal(models.ErrUnckowType.Error())
+
 	}
+
+	a.tvievApp.list.AddItem("Создать секрет", "", 'a', func() {
+		makeSecretFn()
+		a.tvievApp.pages.SwitchToPage(pageAny)
+	})
 
 	a.tvievApp.list.AddItem("Назад", "", 'p', func() {
 		a.listSecretTypes(ctx)
 		a.tvievApp.pages.SwitchToPage(pageAnyList)
 	})
+
 }

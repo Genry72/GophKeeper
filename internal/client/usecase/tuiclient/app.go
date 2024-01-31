@@ -24,6 +24,8 @@ const (
 	pageAnyList = "toList"
 	// Модалка.
 	pageModal = "modal"
+	// Дерево
+	pageTree = "tree"
 )
 
 type App struct {
@@ -34,20 +36,22 @@ type App struct {
 }
 
 type tvievApp struct {
-	app   *tview.Application
-	form  *tview.Form
-	pages *tview.Pages
-	modal *tview.Modal
-	list  *tview.List
+	app      *tview.Application
+	form     *tview.Form
+	pages    *tview.Pages
+	modal    *tview.Modal
+	list     *tview.List
+	treeView *tview.TreeView
 }
 
 func NewApp(ucUser usecase.Iusers, ucSecrets usecase.ISecrets, log *zap.Logger) *App {
 	tvievApp := tvievApp{
-		app:   tview.NewApplication(),
-		form:  tview.NewForm(),
-		pages: tview.NewPages(),
-		modal: tview.NewModal(),
-		list:  tview.NewList().ShowSecondaryText(false),
+		app:      tview.NewApplication(),
+		form:     tview.NewForm(),
+		pages:    tview.NewPages(),
+		modal:    tview.NewModal(),
+		list:     tview.NewList().ShowSecondaryText(false),
+		treeView: tview.NewTreeView(),
 	}
 	return &App{
 		tvievApp:  tvievApp,
@@ -62,6 +66,7 @@ func (a *App) Run(ctx context.Context) error {
 	a.tvievApp.pages.AddPage(pageAny, a.tvievApp.form, true, false)
 	a.tvievApp.pages.AddPage(pageModal, a.tvievApp.modal, true, false)
 	a.tvievApp.pages.AddPage(pageAnyList, a.tvievApp.list, true, false)
+	a.tvievApp.pages.AddPage(pageTree, a.tvievApp.treeView, true, false)
 
 	if err := a.tvievApp.app.SetRoot(a.tvievApp.pages, true).EnableMouse(true).Run(); err != nil {
 		return fmt.Errorf("a.tvievApp.SetRoot: %w", err)

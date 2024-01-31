@@ -18,10 +18,12 @@ type Client struct {
 	log           *zap.Logger
 }
 
-func NewClient(grpcHostPort string, log *zap.Logger) (*Client, error) {
+func NewClient(grpcHostPort string, userInfo *models.UserInfo, log *zap.Logger) (*Client, error) {
 	var interceptors []grpc.UnaryClientInterceptor
-	interceptors = append(interceptors, interceptor.SetToken(&models.Token))
-
+	// Добавление токена в хедер запроса
+	interceptors = append(interceptors, interceptor.SetToken(userInfo.Token))
+	// Кодирование и расшифровка тела секрета
+	interceptors = append(interceptors, interceptor.EncodeSecretValue(userInfo.Password, log))
 	grpcconn, err := grpc.Dial(grpcHostPort, grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithChainUnaryInterceptor(interceptors...))
 

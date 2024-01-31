@@ -17,12 +17,10 @@ const (
 
 // UserInfo информация о пользователе
 type UserInfo struct {
-	Username string
-	Password string
+	Username *string
+	Password *string
+	Token    *string
 }
-
-// Token Хранение и обновление токена.
-var Token = ""
 
 // SecretServerResponse структура по обмену секретов с сервером.
 type SecretServerResponse struct {

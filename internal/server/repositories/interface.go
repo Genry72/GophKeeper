@@ -22,8 +22,13 @@ type ISecrets interface {
 	GetSecretTypes(ctx context.Context) ([]models.SecretType, error)
 	AddSecret(ctx context.Context, userID int64, secretTypeID int64,
 		secretName string, secretContent []byte) (models.Secret, error)
+	EditSecret(ctx context.Context,
+		secretName string, secretID int64, secretContent []byte) (models.Secret, error)
+	DeleteSecret(ctx context.Context, secretID int64) error
 	GetSecretsBySecretTypeID(ctx context.Context,
 		userID int64, typeID int64) ([]models.Secret, error)
+	GetSecretByID(ctx context.Context,
+		userID int64, secretID int64) (models.Secret, error)
 }
 
 type Repo struct {

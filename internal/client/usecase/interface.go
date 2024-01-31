@@ -16,6 +16,9 @@ type InetClientSecrets interface {
 	GetSecretTypes(ctx context.Context) ([]models.SecretType, error)
 	CreateSecret(ctx context.Context,
 		secretID models.SecretTypeID, name models.SecretName, secretValue []byte) (models.SecretServerResponse, error)
+	EditSecret(ctx context.Context, secretID models.SecretID,
+		name models.SecretName, secretValue []byte) (models.SecretServerResponse, error)
+	DeleteSecret(ctx context.Context, secretID models.SecretID) error
 	GetSecretsBySecretTypeID(ctx context.Context,
 		secretTypeID models.SecretTypeID) ([]models.SecretServerResponse, error)
 }
@@ -33,6 +36,11 @@ type ISecrets interface {
 	// CreateSecret Добавление нового секрета
 	CreateSecret(ctx context.Context,
 		secretTypeID models.SecretTypeID, secretName models.SecretName, secret any) error
+	// EditSecret Изменение секрета
+	EditSecret(ctx context.Context,
+		secretID models.SecretID, secretName models.SecretName, secretValue any) error
+	// DeleteSecret Удаление секрета
+	DeleteSecret(ctx context.Context, secretID models.SecretID, secretTypeID models.SecretTypeID) error
 	// GetSecretBySecretTypeID Получение всех секретов по ID
 	GetSecretBySecretTypeID(ctx context.Context, id models.SecretTypeID) ([]any, error)
 }

@@ -34,11 +34,15 @@ func (s *Sync) StartSync(ctx context.Context) error {
 		return fmt.Errorf("s.SyncTypeSecrets: %w", err)
 	}
 
+	s.log.Info("s.syncTypeSecrets success")
+
 	periodicSync := func() {
 		if err := s.syncSecrets(ctx, secretTypes); err != nil {
 			s.log.Error("s.syncSecrets", zap.Error(err))
 			return
 		}
+
+		s.log.Info("periodicSync success")
 	}
 
 	// При старте прогружаем все секреты

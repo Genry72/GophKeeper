@@ -2,7 +2,6 @@ package tuiclient
 
 import (
 	"context"
-	"fmt"
 )
 
 // formRegister Список доступных типов секретов.
@@ -18,7 +17,6 @@ func (a *App) listSecretTypes(ctx context.Context) {
 	for index, t := range types {
 		secretID := t.SecretTypeID
 		secretName := t.SecretTypeName
-		a.log.Info(fmt.Sprintf("%+v", t))
 		a.tvievApp.list.AddItem(string(secretName), "", rune(49+index), func() {
 			a.listSecrets(ctx, secretID)
 			a.tvievApp.pages.SwitchToPage(pageAnyList)

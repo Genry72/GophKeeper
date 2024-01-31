@@ -12,7 +12,7 @@ type IrepoSecrets interface {
 	// CreateSecret Добавление секрета
 	CreateSecret(secret models.SecretServerResponse) error
 	// EditSecret Изменение имеющегося секрета
-	EditSecret(secret any, secretID models.SecretID, typeID models.SecretTypeID) error
+	EditSecret(secret models.SecretServerResponse, secretID models.SecretID, typeID models.SecretTypeID) error
 	// DeleteSecret Удаление секрета
 	DeleteSecret(secretID models.SecretID, typeID models.SecretTypeID) error
 	// GetSecretByID Получение секрета по его id и типу

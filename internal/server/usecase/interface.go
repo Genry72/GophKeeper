@@ -21,8 +21,13 @@ type ISecrets interface {
 	GetSecretTypes(ctx context.Context) ([]models.SecretType, error)
 	AddSecret(ctx context.Context, secretTypeID models.SecretTypeID, secretName string,
 		secretContent []byte) (models.Secret, error)
+	EditSecret(ctx context.Context,
+		secretName string, secretID int64, secretContent []byte) (models.Secret, error)
+	DeleteSecret(ctx context.Context, secretID int64) error
 	GetSecretsBySecretTypeID(ctx context.Context,
 		secretTypeID models.SecretTypeID) ([]models.Secret, error)
+	GetSecretByID(ctx context.Context,
+		secretID int64) (models.Secret, error)
 }
 
 type Usecase struct {

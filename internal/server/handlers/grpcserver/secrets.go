@@ -51,6 +51,34 @@ func (h *GrpcServer) CreateSecret(ctx context.Context, in *pb.CreateSecretReques
 	return response, nil
 }
 
+// EditSecret Редактирование секрета
+func (h *GrpcServer) EditSecret(ctx context.Context, in *pb.EditSecretRequest) (*pb.EditSecretResponse, error) {
+	resultSecret, err := h.useCases.Secrets.EditSecret(ctx, in.Name, in.Id, in.Data)
+	if err != nil {
+		h.log.Error("h.useCases.Secrets.GetSecretTypes", zap.Error(err))
+		return nil, status.Error(checkErr(err), err.Error())
+	}
+
+	return &pb.EditSecretResponse{
+		Id:         resultSecret.ID,
+		UserID:     resultSecret.UserID,
+		SecretType: resultSecret.SecretTypeID,
+		Name:       resultSecret.SecretName,
+		Content:    resultSecret.SecretValue,
+		CreatedAt:  timestamppb.New(resultSecret.CreatedAt),
+		UpdatedAt:  timestamppb.New(resultSecret.UpdatedAt),
+	}, nil
+}
+
+func (h *GrpcServer) DeleteSecret(ctx context.Context, in *pb.DeleteSecretRequest) (*pb.DeleteSecretResponse, error) {
+	if err := h.useCases.Secrets.DeleteSecret(ctx, in.Id); err != nil {
+		h.log.Error("h.useCases.Secrets.GetSecretsBySecretTypeID", zap.Error(err))
+		return nil, status.Error(checkErr(err), err.Error())
+	}
+
+	return &pb.DeleteSecretResponse{}, nil
+}
+
 func (h *GrpcServer) GetSecretsByType(ctx context.Context,
 	in *pb.SecretsByTypeRequest) (*pb.SecretsByTypeResponse, error) {
 	secrets, err := h.useCases.Secrets.GetSecretsBySecretTypeID(ctx, models.SecretTypeID(in.GetSecretType()))

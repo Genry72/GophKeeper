@@ -3,7 +3,6 @@ package users
 import (
 	"context"
 	"fmt"
-	"github.com/Genry72/GophKeeper/internal/client/models"
 )
 
 func (u *UserUc) Auth(ctx context.Context, username, password string) error {
@@ -11,8 +10,9 @@ func (u *UserUc) Auth(ctx context.Context, username, password string) error {
 	if err != nil {
 		return fmt.Errorf("u.netClientUsers.Auth: %w", err)
 	}
-
-	models.Token = token
+	*u.UserInfo.Username = username
+	*u.UserInfo.Password = password
+	*u.UserInfo.Token = token
 
 	if err := u.sync.StartSync(ctx); err != nil {
 		return fmt.Errorf("u.sync.StartSync: %w", err)
