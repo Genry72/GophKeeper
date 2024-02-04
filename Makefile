@@ -38,3 +38,10 @@ genProto:
 #	protoc --go_out=./gen/go --go_opt=paths=source_relative \
 #      --go-grpc_out=./gen/go --go-grpc_opt=paths=source_relative \
 #      proto/users.proto
+
+.PHONY: genMock
+genMock:
+	mockgen -source=internal/server/repositories/interface.go \
+    -destination=internal/server/repositories/mocks/mock_repository.go && \
+    mockgen -source=internal/server/usecase/interface.go \
+    -destination=internal/server/usecase/mocks/mock_usecase.go
