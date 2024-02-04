@@ -45,3 +45,9 @@ genMock:
     -destination=internal/server/repositories/mocks/mock_repository.go && \
     mockgen -source=internal/server/usecase/interface.go \
     -destination=internal/server/usecase/mocks/mock_usecase.go
+
+.PHONY: cover
+cover:
+	go test -short -count=1 -race -coverprofile=coverage.out ./...
+	go tool cover -html=coverage.out
+	rm coverage.out

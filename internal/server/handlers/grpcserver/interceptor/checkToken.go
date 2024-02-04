@@ -36,7 +36,11 @@ func CheckToken(jwtService *jwttoken.Service, log *zap.Logger) grpc.UnaryServerI
 					return nil, status.Errorf(codes.Unauthenticated, "bad Authorization header")
 				}
 				token = tokenStrs[1]
+			} else {
+				log.Error("empty Authorization header")
+				return nil, status.Errorf(codes.Unauthenticated, "user not authenticate")
 			}
+
 		}
 
 		userID, err := jwtService.ValidateAndParseToken(token)
