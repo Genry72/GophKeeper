@@ -277,6 +277,33 @@ func TestGrpcMethods(t *testing.T) {
 
 			},
 		},
+		{
+			name: "DeleteSecret",
+			mockFn: func() {
+				mockSecrets.EXPECT().GetSecretByID(gomock.Any(), userID, int64(1)).Return(models.Secret{
+					ID:           1,
+					UserID:       userID,
+					SecretTypeID: 1,
+					SecretName:   "secret1",
+					SecretValue:  []byte("11"),
+					CreatedAt: time.Date(2024, 01, 04, 22, 00, 00, 0,
+						time.Local),
+					UpdatedAt: time.Date(2024, 01, 04, 22, 00, 00, 0,
+						time.Local),
+					DeletedAt: nil,
+				}, nil)
+				mockSecrets.EXPECT().DeleteSecret(gomock.Any(), int64(1)).Return(nil)
+			},
+			testFn: func() {
+				_, err := clientSecrets.DeleteSecret(ctx, &pb.DeleteSecretRequest{
+					Id: int64(1),
+				})
+
+				if err != nil {
+					assert.NoError(t, err)
+				}
+			},
+		},
 	}
 
 	for _, tt := range tests {
