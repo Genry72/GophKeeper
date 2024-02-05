@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/Genry72/GophKeeper/proto";
+
+message TokenResponse{
+  string token = 1;
+}
+
+// Регистрация пользователя
+message RegisterUserMsg {
+  string username = 1;
+  string password = 2;
+}
+
+// Аутентификация пользователя
+message AuthUserMsg{
+  string username = 1;
+  string password = 2;
+}
+
+
+service Users {
+    rpc Register(RegisterUserMsg) returns (TokenResponse);
+    rpc Auth(AuthUserMsg) returns (TokenResponse);
+}
